@@ -68,7 +68,6 @@ public class JDBCRunner {
 
     // endregion
 
-
     private static void getPortfolios(Connection connection) throws SQLException {
         String columnName0 = "id", columnName1 = "student_id", columnName2 = "status_id", columnName3 = "speciality_id";
         int param0 = -1, param1 = -1, param2 = -1, param3 = -1;
