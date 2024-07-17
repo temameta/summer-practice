@@ -219,18 +219,6 @@ public class JDBCRunner {
         System.out.println("UPDATEd " + count + " statuses");
         getStatuses(connection);
     }
-    private static void correctStatus(Connection connection, String name, int id) throws SQLException {
-        if (name == null || name.isBlank() || id < 0) return;
-
-        PreparedStatement statement = connection.prepareStatement("UPDATE statuses SET name=? WHERE id=?;");
-        statement.setString(1, name);
-        statement.setInt(2, id);
-
-        int count = statement.executeUpdate();
-
-        System.out.println("UPDATEd " + count + " statuses");
-        getStatuses(connection);
-    }
     private static void getBetweenSpecialities(Connection connection, int firstSpec, int secondSpec) throws SQLException {
         if (firstSpec < 10 || secondSpec < 10) return;
         String columnName1 = "code", columnName2 = "name";
