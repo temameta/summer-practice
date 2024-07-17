@@ -36,6 +36,7 @@ public class JDBCRunner {
             addSpeciality(connection, "Аэронавигация", 34); System.out.println();
             removePortfolio(connection, 4, 7); System.out.println();
             correctStatus(connection, "Не принят", 2); System.out.println();
+            getBetweenSpecialities(connection, 11, 13); System.out.println();
 
         } catch (SQLException e) {
             // При открытии соединения, выполнении запросов могут возникать различные ошибки
@@ -69,16 +70,20 @@ public class JDBCRunner {
     // endregion
 
     private static void getPortfolios(Connection connection) throws SQLException {
-        String columnName0 = "id", columnName1 = "student_id", columnName2 = "status_id", columnName3 = "speciality_id";
+        String columnName0 = "id", columnName1 = "student_id", columnName2 = "status_id", columnName3 = "speciality_id", columnName4 = "full_name";
         int param0 = -1, param1 = -1, param2 = -1, param3 = -1;
+        String param4 = null;
         Statement statement = connection.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT * FROM portfolios;");
-        while (rs.next()) { 
+        ResultSet rs = statement.executeQuery("SELECT *, students.second_name || ' ' || students.name || ' ' || students.surname AS full_name FROM portfolios " +
+                "JOIN students ON portfolios.student_id = students.id");
+
+        while (rs.next()) {
             param3 = rs.getInt(columnName3);
+            param4 = rs.getString(columnName4);
             param2 = rs.getInt(columnName2);
             param1 = rs.getInt(columnName1);
             param0 = rs.getInt(columnName0);
-            System.out.println(param0 + " | " + param1 + " | " + param2 + " | " + param3);
+            System.out.println(param0 + " | " + param1 + " | " + param2 + " | " + param4 + " | " + param3);
         }
     }
     private static void getSpecialities(Connection connection) throws SQLException {
@@ -213,5 +218,33 @@ public class JDBCRunner {
         int count = statement.executeUpdate();
         System.out.println("UPDATEd " + count + " statuses");
         getStatuses(connection);
+    }
+    private static void correctStatus(Connection connection, String name, int id) throws SQLException {
+        if (name == null || name.isBlank() || id < 0) return;
+
+        PreparedStatement statement = connection.prepareStatement("UPDATE statuses SET name=? WHERE id=?;");
+        statement.setString(1, name);
+        statement.setInt(2, id);
+
+        int count = statement.executeUpdate();
+
+        System.out.println("UPDATEd " + count + " statuses");
+        getStatuses(connection);
+    }
+    private static void getBetweenSpecialities(Connection connection, int firstSpec, int secondSpec) throws SQLException {
+        if (firstSpec < 10 || secondSpec < 10) return;
+        String columnName1 = "code", columnName2 = "name";
+        int param1 = -1;
+        String param2 = null;
+        PreparedStatement statement = connection.prepareStatement("SELECT name, code FROM specialities " +
+                "WHERE code BETWEEN ? AND ?;");
+        statement.setInt(1, firstSpec);
+        statement.setInt(2, secondSpec);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            param2 = rs.getString(columnName2);
+            param1 = rs.getInt(columnName1);
+            System.out.println(param1 + " | " + param2);
+        }
     }
 }
